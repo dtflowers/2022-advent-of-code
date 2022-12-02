@@ -21,4 +21,25 @@ def round_score(player, opponent)
   return 9 if player == "Z" && opponent == "B"
 end
 
-puts "The answer is #{score(input)}"
+puts "The first answer is #{score(input)}"
+
+def throwing_score(input)
+  input.inject(0) do |throwing_score, line|
+    opponent, player = line.split(" ")
+    throwing_score += throwing_round_score(opponent, player)
+  end
+end
+
+def throwing_round_score(opponent, player)
+  return 1 if opponent == "B" && player == "X"
+  return 2 if opponent == "C" && player == "X"
+  return 3 if opponent == "A" && player == "X"
+  return 4 if opponent == "A" && player == "Y"
+  return 5 if opponent == "B" && player == "Y"
+  return 6 if opponent == "C" && player == "Y"
+  return 7 if opponent == "C" && player == "Z"
+  return 8 if opponent == "A" && player == "Z"
+  return 9 if opponent == "B" && player == "Z"
+end
+
+puts "The second answer is #{throwing_score(input)}"
