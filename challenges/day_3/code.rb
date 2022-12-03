@@ -28,4 +28,17 @@ priorities = identify_priorities(input)
 
 scores = score_priorities(priorities)
 
-puts "The answer to the question is #{scores.sum}"
+puts "The answer to the first question is #{scores.sum}"
+
+def identify_badges(input)
+  input.each_slice(3).map do |group|
+    first, second, third = group
+    first.chars & second.chars & third.chars
+  end
+end
+
+badges = identify_badges(input)
+
+badge_scores = score_priorities(badges)
+
+puts "The answer to the second question is #{badge_scores.sum}"
