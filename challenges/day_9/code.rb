@@ -1,49 +1,116 @@
 def input
-  File.read("example.txt").split("\n")
+  File.read("input.txt").split("\n")
 end
 
-def head_moves
-  head_moves = input.map do |line|
+def handle_tail_movement(direction, starting_head_position, starting_tail_position)
+  return starting_tail_position if starting_head_position == starting_tail_position
+
+  case direction
+  when "L"
+    if starting_head_position[:y] == starting_tail_position[:y]
+      return starting_tail_position if starting_head_position[:x] >= starting_tail_position[:x]
+
+      starting_tail_position[:x] -= 1
+      starting_tail_position.dup
+    elsif starting_head_position[:x] == starting_tail_position[:x]
+      starting_tail_position.dup
+    elsif starting_head_position[:x] < starting_tail_position[:x]
+      starting_head_position.dup
+    else
+      starting_tail_position.dup
+    end
+  when "R"
+    if starting_head_position[:y] == starting_tail_position[:y]
+      return starting_tail_position if starting_head_position[:x] <= starting_tail_position[:x]
+
+      starting_tail_position[:x] += 1
+      starting_tail_position.dup
+    elsif starting_head_position[:x] == starting_tail_position[:x]
+      starting_tail_position.dup
+    elsif starting_head_position[:x] > starting_tail_position[:x]
+      starting_head_position.dup
+    else
+      starting_tail_position.dup
+    end
+  when "U"
+    if starting_head_position[:x] == starting_tail_position[:x]
+      return starting_tail_position if starting_head_position[:y] <= starting_tail_position[:y]
+
+      starting_tail_position[:y] += 1
+      starting_tail_position.dup
+    elsif starting_head_position[:y] == starting_tail_position[:y]
+      starting_tail_position.dup
+    elsif starting_head_position[:y] - starting_tail_position[:y] > 0
+      starting_head_position.dup
+    else
+      starting_tail_position.dup
+    end
+  when "D"
+    if starting_head_position[:x] == starting_tail_position[:x]
+      return starting_tail_position if starting_head_position[:y] >= starting_tail_position[:y]
+
+      starting_tail_position[:y] -= 1
+      starting_tail_position.dup
+    elsif starting_head_position[:y] == starting_tail_position[:y]
+      starting_tail_position.dup
+    elsif starting_head_position[:y] - starting_tail_position[:y] < 0
+      starting_head_position.dup
+    else
+      starting_tail_position.dup
+    end
+  end
+end
+
+def moves
+  moves = input.map do |line|
     direction = line[0]
     distance = line[1..].to_i
-    { direction: direction, distance: distance, head_positions: [] }
+    { direction: direction, distance: distance, head_positions: [], tail_positions: [] }
   end
   head_position = { x: 0, y: 0 }
-  head_moves.each do |head_move|
-    head_move[:head_positions] << [head_position[:x], head_position[:y]]
-    case head_move[:direction]
+  tail_position = { x: 0, y: 0 }
+  moves.each_with_index do |move, i|
+    move[:head_positions] << head_position.dup
+    move[:tail_positions] << tail_position.dup
+    case move[:direction]
     when "U"
-      head_move[:distance].times do
+      move[:distance].times do
+        starting_head_position = head_position.dup
         head_position[:y] += 1
-        head_move[:head_positions] << [head_position[:x], head_position[:y]]
+        move[:head_positions] << head_position.dup
+        tail_position = handle_tail_movement(move[:direction], starting_head_position, tail_position)
+        move[:tail_positions] << tail_position.dup
       end
     when "D"
-      head_move[:distance].times do
+      move[:distance].times do
+        starting_head_position = head_position.dup
         head_position[:y] -= 1
-        head_move[:head_positions] << [head_position[:x], head_position[:y]]
+        move[:head_positions] << head_position.dup
+        tail_position = handle_tail_movement(move[:direction], starting_head_position, tail_position)
+        move[:tail_positions] << tail_position.dup
       end
     when "R"
-      head_move[:distance].times do
+      move[:distance].times do
+        starting_head_position = head_position.dup
         head_position[:x] += 1
-        head_move[:head_positions] << [head_position[:x], head_position[:y]]
+        move[:head_positions] << head_position.dup
+        tail_position = handle_tail_movement(move[:direction], starting_head_position, tail_position)
+        move[:tail_positions] << tail_position.dup
       end
     when "L"
-      head_move[:distance].times do
+      move[:distance].times do
+        starting_head_position = head_position.dup
         head_position[:x] -= 1
-        head_move[:head_positions] << [head_position[:x], head_position[:y]]
+        move[:head_positions] << head_position.dup
+        tail_position = handle_tail_movement(move[:direction], starting_head_position, tail_position)
+        move[:tail_positions] << tail_position.dup
       end
     end
   end
-  head_moves
 end
 
-pp head_moves
-
-def tail_moves
-  tail_position = { x: 0, y: 0 }
-  head_moves.map do |head_move|
-    # TODO: sort out logic for whether or not the tail will move. And if it does move, to which position it will move.
-  end
+def tail_positions_count
+  moves.map { |move| move[:tail_positions] }.flatten(1).uniq.count
 end
 
-pp tail_moves
+puts "The answer to the first question is #{tail_positions_count}"
